@@ -3,17 +3,16 @@ package de.koehler;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Component;
 
-import javax.jms.TextMessage;
 import java.util.List;
 
 /**
  * Mongo repository for jms text messages
  */
 @Component
-public interface MessageRepository extends MongoRepository<TextMessage, String> {
+public interface MessageRepository extends MongoRepository<Message, String> {
     @Override
-    public <S extends TextMessage> S save(S s);
+    public <S extends Message> S save(S s);
 
     @Override
-    public List<TextMessage> findAll();
+    public List<Message> findAll();
 }

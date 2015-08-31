@@ -1,46 +1,52 @@
 package de.koehler;
 
 import de.flapdoodle.embed.mongo.MongodExecutable;
-import de.flapdoodle.embed.mongo.MongodProcess;
 import de.flapdoodle.embed.mongo.MongodStarter;
 import de.flapdoodle.embed.mongo.config.IMongodConfig;
 import de.flapdoodle.embed.mongo.config.MongodConfigBuilder;
 import de.flapdoodle.embed.mongo.config.Net;
+import de.flapdoodle.embed.mongo.config.Storage;
 import de.flapdoodle.embed.mongo.distribution.Version;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.io.IOException;
 
 /**
- * Created by mart on 31.08.15.
+ * An embedded persistent mongo server
  */
 @Component
 public class MongoServer {
+
+    private MongodExecutable mongodExecutable;
+
+    @Value("${spring.data.mongodb.port}")
+    private Integer port;
+
+    @Value("${databaseDir}")
+    private String databaseDir;
 
     @PostConstruct
     public void init() throws IOException {
         MongodStarter starter = MongodStarter.getDefaultInstance();
 
-        int port = 12345;
-        IMongodConfig mongodConfig = new MongodConfigBuilder()
+        final Storage replication = new Storage(databaseDir, null, 0);
+        final IMongodConfig mongodConfig = new MongodConfigBuilder()
                 .version(Version.Main.PRODUCTION)
+                .replication(replication)
                 .net(new Net(port, false))
                 .build();
 
-        MongodExecutable mongodExecutable = null;
-        try {
-            mongodExecutable = starter.prepare(mongodConfig);
-            MongodProcess mongod = mongodExecutable.start();
-/*
-            MongoClient mongo = new MongoClient("localhost", port);
-            DB db = mongo.getDB("test");
-            DBCollection col = db.createCollection("testCol", new BasicDBObject());
-            col.save(new BasicDBObject("testDoc", new Date()));*/
+        mongodExecutable = starter.prepare(mongodConfig);
+        mongodExecutable.start();
+    }
 
-        } finally {
-            /*if (mongodExecutable != null)
-                mongodExecutable.stop();*/
+    @PreDestroy
+    public void close() {
+        if (mongodExecutable != null) {
+            mongodExecutable.stop();
         }
     }
 }

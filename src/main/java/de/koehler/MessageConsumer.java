@@ -10,6 +10,7 @@ import org.springframework.jms.config.SimpleJmsListenerContainerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.jms.ConnectionFactory;
+import javax.jms.JMSException;
 import javax.jms.TextMessage;
 
 /**
@@ -29,12 +30,10 @@ public class MessageConsumer {
         return factory;
     }
 
-    @JmsListener(destination = "${queue}", containerFactory = "defaultJmsContainerFactory")
-    public void receiveMessage(TextMessage message) {
-        //todo mongo integration here
-        // check https://github.com/flapdoodle-oss/de.flapdoodle.embed.mongo
-        repository.save(message);
-        LOG.info("Received <" + message + ">");
+    @JmsListener(destination = "${destination}", containerFactory = "defaultJmsContainerFactory")
+    public void receive(TextMessage message) throws JMSException {
+        LOG.info("Received message: " + message.getText());
+        repository.save(Message.create(message.getText(), message.getJMSTimestamp()));
 
     }
 }
