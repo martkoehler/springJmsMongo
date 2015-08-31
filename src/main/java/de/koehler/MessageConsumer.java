@@ -29,7 +29,7 @@ public class MessageConsumer {
         return factory;
     }
 
-    @JmsListener(destination = "additionalAttribute", containerFactory = "defaultJmsContainerFactory")
+    @JmsListener(destination = "${queue}", containerFactory = "defaultJmsContainerFactory")
     public void receiveMessage(TextMessage message) {
         //todo mongo integration here
         // check https://github.com/flapdoodle-oss/de.flapdoodle.embed.mongo
