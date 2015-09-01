@@ -10,9 +10,4 @@ import java.util.List;
  */
 @Component
 public interface MessageRepository extends MongoRepository<Message, String> {
-    @Override
-    public <S extends Message> S save(S s);
-
-    @Override
-    public List<Message> findAll();
 }

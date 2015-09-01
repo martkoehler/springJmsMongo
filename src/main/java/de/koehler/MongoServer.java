@@ -7,6 +7,8 @@ import de.flapdoodle.embed.mongo.config.MongodConfigBuilder;
 import de.flapdoodle.embed.mongo.config.Net;
 import de.flapdoodle.embed.mongo.config.Storage;
 import de.flapdoodle.embed.mongo.distribution.Version;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +22,8 @@ import java.io.IOException;
 @Component
 public class MongoServer {
 
+    private static final Logger LOG = LoggerFactory.getLogger(MongoServer.class);
+
     private MongodExecutable mongodExecutable;
 
     @Value("${spring.data.mongodb.port}")
@@ -30,6 +34,7 @@ public class MongoServer {
 
     @PostConstruct
     public void init() throws IOException {
+        LOG.info("Prepare mongo server configuration");
         MongodStarter starter = MongodStarter.getDefaultInstance();
 
         final Storage replication = new Storage(databaseDir, null, 0);
@@ -40,13 +45,18 @@ public class MongoServer {
                 .build();
 
         mongodExecutable = starter.prepare(mongodConfig);
+
+        LOG.info("Starting mongo server");
         mongodExecutable.start();
+        LOG.info("Mongo server started");
     }
 
     @PreDestroy
     public void close() {
         if (mongodExecutable != null) {
+            LOG.info("Stopping mongo server");
             mongodExecutable.stop();
+            LOG.info("Mongo server stopped");
         }
     }
 }

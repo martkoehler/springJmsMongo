@@ -13,6 +13,8 @@ import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.TextMessage;
 
+import static org.apache.commons.lang3.Validate.notNull;
+
 /**
  * Text message consumer
  */
@@ -24,14 +26,18 @@ public class MessageConsumer {
     private MessageRepository repository;
 
     @Bean
-    public JmsListenerContainerFactory<?> defaultJmsContainerFactory(ConnectionFactory connectionFactory) {
+    JmsListenerContainerFactory<?> defaultJmsContainerFactory(final ConnectionFactory connectionFactory) {
+        notNull(connectionFactory, "connectionFatory must not be null");
+
         SimpleJmsListenerContainerFactory factory = new SimpleJmsListenerContainerFactory();
         factory.setConnectionFactory(connectionFactory);
         return factory;
     }
 
     @JmsListener(destination = "${destination}", containerFactory = "defaultJmsContainerFactory")
-    public void receive(TextMessage message) throws JMSException {
+    public void receive(final TextMessage message) throws JMSException {
+        notNull(message, "message must not be null");
+
         LOG.info("Received message: " + message.getText());
         repository.save(Message.create(message.getText(), message.getJMSTimestamp()));
 

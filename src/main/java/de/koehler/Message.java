@@ -1,5 +1,7 @@
 package de.koehler;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.springframework.data.annotation.Id;
 
 import static org.apache.commons.lang3.Validate.notNull;
@@ -30,5 +32,29 @@ public class Message {
 
     public long getTimestamp() {
         return timestamp;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Message message1 = (Message) o;
+
+        return new EqualsBuilder()
+                .append(timestamp, message1.timestamp)
+                .append(id, message1.id)
+                .append(message, message1.message)
+                .isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+                .append(id)
+                .append(message)
+                .append(timestamp)
+                .toHashCode();
     }
 }
